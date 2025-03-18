@@ -1,103 +1,83 @@
-## Contributing to pycomm3
+## Contributing to CIPy
 
-This document aims to provide a brief guide on how to contribute to `pycomm3`.  
+This document provides a brief guide on how to contribute to `CIPy`, a Python library for CIP and EtherNet/IP communication derived from `pycomm3`.
 
-### Who can contribute?
+### Who Can Contribute?
 
-Anyone! Contributions from any user are welcome.  Contributions aren't limited to changing code. 
-Filing bug reports, asking questions, adding examples or documentation are all ways to contribute.
-New users may find it helpful to start with improving documentation, type hinting, or tests.  
+Anyone is welcome to contribute! Contributions aren’t limited to code—filing bug reports, asking questions, adding examples, or improving documentation are all valuable ways to help. New users might find it easiest to start with documentation updates, type hinting, or test cases.
 
-## Asking a question
+## Asking a Question
 
-Questions can be submitted as either an issue or a discussion post.  A general question not directly related to the code
-or one that may be beneficial to other users would be most appropriate in the discussions area.  One that is about a 
-specific feature or could turn into a feature request or bug report would be more appropriate as an issue.  If submitting
-a question as an issue, please use the _question_ template.  
+Questions can be posted as GitHub issues or discussions:
+- **Discussions**: Best for general questions not tied to specific code or those that could benefit the community.
+- **Issues**: Ideal for questions about features, potential feature requests, or bugs. Use the _Question_ template if submitting as an issue.
 
 ## Submitting an Issue
 
-No code is perfect, `pycomm3` is no different and user submitted issues aid in improving the quality of this library.
-Before submitting an issue, check to see if someone has already submitted one before so we can avoid duplicate issues. 
+`CIPy` is a work in progress, and user-submitted issues help improve its quality. Before submitting, check existing issues to avoid duplicates.
 
 ### Bug Reports
 
-To submit a bug report, please create an issue using the _Bug Report_ template. Please include as much information as 
-possible relating to the bug.  The more detailed the bug report, the easier and faster it will be to resolve.
-Some details to include:
-- The version of `pycomm3` (easily found with the `pip show pycomm3` command)
-- Model/Firmware/etc if the issue is related to a specific device or firmware version
-- Logs (see the [documentation](https://pycomm3.dev/getting_started.html#logging) to configure)
-  - A helper method is provided to simplify logging configs, including logging to a file  
-  - Using the `LOG_VERBOSE` level is the most helpful
-- Sample code that will reproduce the bug
+To report a bug, create an issue using the _Bug Report_ template. Provide as much detail as possible to speed up resolution. Include:
+- `CIPy` version (e.g., `pip show cipy`).
+- Device details (model, firmware, etc.) if the bug is device-specific.
+- Logs (see [documentation](https://cipy.readthedocs.io/en/latest/getting_started.html#logging) for setup).
+  - Use `LOG_VERBOSE` level for maximum detail.
+  - A helper method simplifies logging to a file.
+- Sample code to reproduce the bug.
 
 ### Feature Requests
 
-For feature requests or enhancements, please create an issue using the _Feature Request_ template.  New features could be
-things like:
-- A missing feature from a similar library
-    - e.g. Library _X_ has a feature _Y_, would it be possible to add _Y_ functionality to `pycomm3`?
-- Change or modification to the API
-    - If it's a breaking change be sure to include why the new functionality is better than the current
-- Enhancing a current feature
-- Removing an old/broken/unsupported feature
-
+For new features or enhancements, use the _Feature Request_ template. Examples include:
+- Adding missing features from similar libraries (e.g., "Library X has Y—can `CIPy` support it?").
+- API changes (justify breaking changes with clear benefits).
+- Enhancing existing features (e.g., more robust `EPATH` handling).
+- Removing outdated or unsupported functionality.
 
 ## Submitting Changes
 
-Submitting code or documentation changes is another way to contribute.  All contributions should be made in the form of 
-a pull request.  You should fork this repository and clone it to your machine.  All work is done in the `develop` branch 
-first before merging to `master`.  All pull requests should target the `develop` branch.  This is because some of the 
-tests are specific to a demo PLC.  Once changes are completed in `develop` and all tests are passing, `develop` will
-be merged into `master` and a new release created and available on PyPI. 
+Code or documentation changes should be submitted as pull requests. Fork the repository, clone it locally, and work in the `develop` branch (the primary development branch). Pull requests should target `develop`. Once changes are tested and stable, they’ll be merged into `master` for a new release.
 
-Some requirements for code changes to be accepted include:
+### Requirements for Contributions
 
-- code should be _pythonic_ and follow PEP8, PEP20, and other Python best-practices or common conventions
-- public methods should have docstrings which will be included in the documentation
-- comments and docstrings should explain _why_ and _how_ the code works, not merely _what_ it is doing
-- type hinting should be used as much as possible, all public methods need to have hints
-- new functionality should have tests
-- run the _user_ tests and verify there are no issues
-- avoid 3rd party dependencies, code should only require the Python standard library
-- avoid breaking changes, unless adequately justified
-- do not update the library version
+To ensure quality, contributions must:
+- Be _Pythonic_, adhering to PEP 8, PEP 20, and common conventions.
+- Include docstrings for public methods (included in auto-generated docs).
+- Use comments and docstrings to explain _why_ and _how_, not just _what_.
+- Apply type hints to all public methods and as many internal ones as possible.
+- Include tests for new functionality.
+- Pass the _user_ tests (see Unit Testing in the README).
+- Avoid third-party dependencies—use only the Python standard library.
+- Minimize breaking changes unless well-justified.
+- Avoid updating the library version (handled by maintainers).
 
-Some suggested contributions include:
-- type hinting
-    - all public methods are type hinted, but many internal methods are missing them
-- tests
-    - new tests are always welcome, particularly offline tests or any methods missing tests
-- examples
-    - example scripts showing how to use this library or any of it's features
-    - you may include just the example script if you're not comfortable with also updating the docs to include it
-    
+### Suggested Contributions
 
-### New Feature or an Example?
+- **Type Hinting**: Public methods are hinted, but many internal ones need work.
+- **Tests**: Add offline tests or cover untested methods.
+- **Examples**: Share scripts demonstrating `CIPy` features (e.g., using `EPATH` decoding).
+  - Include your name/username/email in a comment/docstring for credit if desired.
+- **Documentation**: Expand usage guides or clarify complex features like structs.
 
-It can be tough to decide whether functionality should be added to the library or shown as an example.  New features 
-should apply to generally to almost all devices for a driver or implement new functionality that cannot be done externally.
-If submitting an example, please include name/username/email/etc in a comment/docstring if you wish to be credited.
+### New Feature or Example?
 
-Here are a couple examples of changes and why they were added either as a feature or example:
+Deciding whether a change belongs in the library or as an example can be tricky. Features should be broadly applicable or require internal changes, while examples showcase existing functionality. If submitting an example, add credit details if you’d like recognition.
 
-**[Feature] Add support for writing structures with a dictionary for the value:**
-- Cannot be done without modifying internal methods
-- New functionality not yet implemented
-- Improves user experience
-    - user can read a struct, change one value, and write it back without changing the data structure
+#### Examples of Feature vs. Example
 
-**[Example] Add support for reading/writing Powerflex drive parameters:**
-- Implemented using the `generic_message` method
-- Does not apply to a wide arrange of device types
-- Not a PLC, so doesn't fit in the Logix or SLC drivers
-- Too specific for the CIPDriver, but not enough to create a new driver
+- **[Feature] Full `EPATH` Decoding**:
+  - Required internal changes to `data_types.py`.
+  - Broadly applicable to CIP routing.
+  - Enhances core functionality.
 
-Some questions to ask yourself when deciding between a feature or an example:
-- Is this new functionality or a new use of current functionality? _Former may be a feature, latter could be an example_
-- Can this be done using already available features? _Yes, then maybe an example_
-- Does this apply to a wide arrange of devices? _Yes, then maybe a feature_
-- Will this require internal changes to existing functionality? _Yes, then maybe a feature_
-- Is this useful? _Either should be useful_
+- **[Example] Reading Drive Parameters with `generic_message`**:
+  - Uses existing `generic_message` method.
+  - Specific to certain devices (e.g., PowerFlex drives).
+  - Better as an external script than a core feature.
 
+#### Questions to Ask
+- Is this new functionality or a creative use of existing tools? (_New = feature, use = example_)
+- Can it be done with current features? (_Yes = example_)
+- Does it apply to most devices? (_Yes = feature_)
+- Does it need internal changes? (_Yes = feature_)
+- Is it useful? (_Must be for either_)
