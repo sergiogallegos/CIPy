@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +27,49 @@
 # SOFTWARE.
 #
 
+"""Tag class for representing CIP operation results in Pycomm3."""
 
-from typing import NamedTuple, Any, Optional
+from typing import Any, NamedTuple, Optional
 from reprlib import repr as _r
-
 
 __all__ = ["Tag"]
 
 
 class Tag(NamedTuple):
-    tag: str  #: tag name of tag read/written or request name (generic message)
-    value: Any  #: value read/written, may be ``None`` on error
-    type: Optional[str] = None  #: data type of tag
-    error: Optional[str] = None  #: error message if unsuccessful, else ``None``
+    """Represents the result of a CIP tag operation.
 
-    def __bool__(self):
-        """
-        ``True`` if both ``value`` is not ``None`` and ``error`` is ``None``, ``False`` otherwise
+    Attributes:
+        tag: Tag name or request identifier.
+        value: Value read/written, or None if an error occurred.
+        type: Data type of the tag (optional).
+        error: Error message if the operation failed (optional).
+
+    Example:
+        >>> tag = Tag("MyTag", 42, "INT", None)
+        >>> print(tag)
+        MyTag, 42, INT, None
+    """
+
+    tag: str
+    value: Any
+    type: Optional[str] = None
+    error: Optional[str] = None
+
+    def __bool__(self) -> bool:
+        """Check if the tag operation was successful.
+
+        Returns:
+            bool: True if value is not None and error is None, False otherwise.
         """
         return self.value is not None and self.error is None
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Human-readable string representation."""
         return f"{self.tag}, {_r(self.value)}, {self.type}, {self.error}"
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}(tag={self.tag!r}, value={self.value!r}, type={self.type!r}, error={self.error!r})"
+    def __repr__(self) -> str:
+        """Detailed string representation."""
+        return (
+            f"{self.__class__.__name__}(tag={self.tag!r}, value={self.value!r}, "
+            f"type={self.type!r}, error={self.error!r})"
+        )

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +27,14 @@
 # SOFTWARE.
 #
 
+"""Pycomm3: A Python library for communication with Allen-Bradley PLCs via Ethernet/IP.
+
+This module serves as the entry point for the Pycomm3 package, exposing key components
+for interacting with PLCs, including drivers, data types, and utilities.
+
+Version: 2.0.0 (2025 fork by Sergio Gallegos)
+"""
+
 from ._version import __version__, __version_info__
 from .logger import *
 from .const import *
@@ -32,3 +45,9 @@ from .custom_types import *
 from .cip_driver import *
 from .logix_driver import *
 from .slc_driver import *
+
+__all__ = [
+    "__version__",
+    "__version_info__",
+    "Tag",
+] + logger.__all__ + const.__all__ + exceptions.__all__ + cip.__all__ + custom_types.__all__ + cip_driver.__all__ + logix_driver.__all__ + slc_driver.__all__

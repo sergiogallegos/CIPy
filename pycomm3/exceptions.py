@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,38 +27,56 @@
 # SOFTWARE.
 #
 
+"""Exception classes for Pycomm3."""
+
+__all__ = [
+    "PycommError",
+    "CommError",
+    "DataError",
+    "BufferEmptyError",
+    "ResponseError",
+    "RequestError",
+]
+
 
 class PycommError(Exception):
-    """
-    Base exception for all exceptions raised by pycomm3
+    """Base exception for all Pycomm3-related errors.
+
+    Attributes:
+        args: Exception arguments.
     """
 
 
 class CommError(PycommError):
-    """
-    For exceptions raised during connection related issues
+    """Exception for communication-related issues.
+
+    Raised during socket operations, connection failures, or timeouts.
     """
 
 
 class DataError(PycommError):
-    """
-    For exceptions raised during binary encoding/decoding of data
+    """Exception for data encoding/decoding errors.
+
+    Raised when binary data cannot be properly processed.
     """
 
 
 class BufferEmptyError(DataError):
-    """
-    Raised when trying to decode an empty buffer
+    """Exception for attempts to decode an empty buffer.
+
+    Raised when a data operation expects content but finds none.
     """
 
 
 class ResponseError(PycommError):
-    """
-    For exceptions raised during handling for responses to requests
+    """Exception for errors in handling request responses.
+
+    Raised when a CIP response is invalid or unexpected.
     """
 
 
 class RequestError(PycommError):
-    """
-    For exceptions raised due to issues building requests or processing of user supplied data
+    """Exception for errors in building requests or processing user data.
+
+    Raised due to invalid input or malformed request structures.
     """

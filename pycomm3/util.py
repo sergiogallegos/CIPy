@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,46 +27,68 @@
 # SOFTWARE.
 #
 
+"""Utility functions for Pycomm3."""
 
-"""
-Various utility functions.
-"""
+from typing import Tuple, Iterator
 
-from typing import Tuple
+__all__ = ["strip_array", "get_array_index", "cycle"]
 
 
 def strip_array(tag: str) -> str:
+    """Strip the array portion from a tag name.
+
+    Args:
+        tag: Tag name (e.g., "tag[100]").
+
+    Returns:
+        str: Tag name without array portion (e.g., "tag").
+
+    Example:
+        >>> strip_array("tag[100]")
+        'tag'
     """
-    Strip off the array portion of the tag
-
-    'tag[100]' -> 'tag'
-
-    """
-    if "[" in tag:
-        return tag[: tag.find("[")]
-    return tag
+    return tag[:tag.find("[")] if "[" in tag else tag
 
 
-def get_array_index(tag: str) -> Tuple[str, int]:
-    """
-    Return tag name and array index from a 1-dim tag request
+def get_array_index(tag: str) -> Tuple[str, Optional[int]]:
+    """Extract tag name and array index from a 1D tag request.
 
-    'tag[100]' -> ('tag', 100)
+    Args:
+        tag: Tag name with optional array index (e.g., "tag[100]").
+
+    Returns:
+        Tuple[str, Optional[int]]: Tag name and array index (or None if no index).
+
+    Example:
+        >>> get_array_index("tag[100]")
+        ('tag', 100)
+        >>> get_array_index("tag")
+        ('tag', None)
     """
     if tag.endswith("]") and "[" in tag:
-        tag, _tmp = tag.rsplit("[", maxsplit=1)
-        idx = int(_tmp[:-1])
-    else:
-        idx = None
-
-    return tag, idx
+        tag, idx_str = tag.rsplit("[", maxsplit=1)
+        return tag, int(idx_str[:-1])
+    return tag, None
 
 
-def cycle(stop, start=0):
+def cycle(stop: int, start: int = 0) -> Iterator[int]:
+    """Create an infinite iterator cycling from start to stop.
+
+    Args:
+        stop: Upper bound (exclusive).
+        start: Starting value (default: 0).
+
+    Returns:
+        Iterator[int]: Infinite iterator of integers.
+
+    Example:
+        >>> c = cycle(3)
+        >>> [next(c) for _ in range(5)]
+        [0, 1, 2, 0, 1]
+    """
     val = start
     while True:
-        if val > stop:
+        if val >= stop:
             val = start
-
         yield val
         val += 1

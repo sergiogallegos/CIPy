@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,5 +27,7 @@
 # SOFTWARE.
 #
 
-__version_info__ = (1, 2, 14)
+"""Version information for the Pycomm3 package."""
+
+__version_info__ = (2, 0, 0)  # Updated for 2025 fork by Sergio Gallegos
 __version__ = ".".join(f"{x}" for x in __version_info__)

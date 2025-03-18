@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +27,12 @@
 # SOFTWARE.
 #
 
+"""Custom data types for CIP communication in Pycomm3."""
+
+from __future__ import annotations
 import ipaddress
 from io import BytesIO
-from typing import Any, Type, Dict, Tuple, Union, Set
+from typing import Any, Dict, Set, Tuple, Type, Union
 
 from .cip import (
     DataType,
@@ -45,7 +53,6 @@ from .cip import (
 )
 from .cip.data_types import _StructReprMeta
 
-
 __all__ = [
     "IPAddress",
     "ModuleIdentityObject",
@@ -57,26 +64,38 @@ __all__ = [
 ]
 
 
-def FixedSizeString(size_: int, len_type_: Union[DataType, Type[DataType]] = UDINT):
-    """
-    Creates a custom string tag type
+def FixedSizeString(size: int, len_type: Union[DataType, Type[DataType]] = UDINT) -> Type[StringDataType]:
+    """Create a custom fixed-size string data type.
+
+    Args:
+        size: Fixed length of the string in bytes.
+        len_type: Data type for encoding the length (default: UDINT).
+
+    Returns:
+        Type[StringDataType]: A custom string type class.
+
+    Example:
+        >>> MyString = FixedSizeString(10)
+        >>> MyString.encode("test")
+        b'\x04\x00\x00\x00test\x00\x00\x00\x00\x00\x00'
     """
 
     class FixedSizeString(StringDataType):
-        size = size_
-        len_type = len_type_
+        size = size
+        len_type = len_type
 
         @classmethod
-        def _encode(cls, value: str, *args, **kwargs) -> bytes:
-            return (
-                cls.len_type.encode(len(value))
-                + value.encode(cls.encoding)
-                + b"\x00" * (cls.size - len(value))
-            )
+        def _encode(cls, value: str, *args: Any, **kwargs: Any) -> bytes:
+            encoded = value.encode(cls.encoding)
+            if len(encoded) > cls.size:
+                raise ValueError(f"String length {len(encoded)} exceeds fixed size {cls.size}")
+            return cls.len_type.encode(len(value)) + encoded + b"\x00" * (cls.size - len(encoded))
 
         @classmethod
         def _decode(cls, stream: BytesIO) -> str:
             _len = cls.len_type.decode(stream)
+            if _len > cls.size:
+                raise ValueError(f"Decoded length {_len} exceeds fixed size {cls.size}")
             _data = cls._stream_read(stream, cls.size)[:_len]
             return _data.decode(cls.encoding)
 
@@ -84,17 +103,21 @@ def FixedSizeString(size_: int, len_type_: Union[DataType, Type[DataType]] = UDI
 
 
 class IPAddress(DerivedDataType):
+    """IPv4 address data type."""
+
     @classmethod
     def _encode(cls, value: str) -> bytes:
+        """Encode an IPv4 address string to bytes."""
         return ipaddress.IPv4Address(value).packed
 
     @classmethod
-    def _decode(cls, stream: BytesIO) -> Any:
+    def _decode(cls, stream: BytesIO) -> str:
+        """Decode bytes to an IPv4 address string."""
         return ipaddress.IPv4Address(cls._stream_read(stream, 4)).exploded
 
 
 class Revision(Struct(USINT("major"), USINT("minor"))):
-    ...
+    """Revision data type with major and minor components."""
 
 
 class ModuleIdentityObject(
@@ -108,22 +131,23 @@ class ModuleIdentityObject(
         SHORT_STRING("product_name"),
     )
 ):
+    """Module identity object for CIP devices."""
+
     @classmethod
-    def _decode(cls, stream: BytesIO):
-        values = super(ModuleIdentityObject, cls)._decode(stream)
+    def _decode(cls, stream: BytesIO) -> Dict[str, Any]:
+        values = super()._decode(stream)
         values["product_type"] = PRODUCT_TYPES.get(values["product_type"], "UNKNOWN")
         values["vendor"] = VENDORS.get(values["vendor"], "UNKNOWN")
         values["serial"] = f"{values['serial']:08x}"
-
         return values
 
     @classmethod
-    def _encode(cls, values: Dict[str, Any]):
+    def _encode(cls, values: Dict[str, Any]) -> bytes:
         values = values.copy()
         values["product_type"] = PRODUCT_TYPES[values["product_type"]]
         values["vendor"] = VENDORS[values["vendor"]]
         values["serial"] = int.from_bytes(bytes.fromhex(values["serial"]), "big")
-        return super(ModuleIdentityObject, cls)._encode(values)
+        return super()._encode(values)
 
 
 class ListIdentityObject(
@@ -145,13 +169,14 @@ class ListIdentityObject(
         USINT("state"),
     )
 ):
+    """Identity object for ListIdentity service."""
+
     @classmethod
-    def _decode(cls, stream: BytesIO):
-        values = super(ListIdentityObject, cls)._decode(stream)
+    def _decode(cls, stream: BytesIO) -> Dict[str, Any]:
+        values = super()._decode(stream)
         values["product_type"] = PRODUCT_TYPES.get(values["product_type"], "UNKNOWN")
         values["vendor"] = VENDORS.get(values["vendor"], "UNKNOWN")
         values["serial"] = f"{values['serial']:08x}"
-
         return values
 
 
@@ -162,70 +187,71 @@ StructTemplateAttributes = Struct(
     Struct(UINT("attr_num"), UINT("status"), UINT("count"))(name="member_count"),
     Struct(UINT("attr_num"), UINT("status"), UINT("handle"))(name="structure_handle"),
 )
+"""Structure for template attributes in CIP."""
 
 
 class _StructTagReprMeta(_StructReprMeta):
-    def __repr__(cls):
+    def __repr__(cls) -> str:
         members = ", ".join(repr(m) for m in cls.members)
-        return f"{cls.__name__}({members}, bool_members={cls.bits!r},  struct_size={cls.size!r})"  # TODO
+        return f"{cls.__name__}({members}, bool_members={cls.bits!r}, struct_size={cls.size!r})"
 
 
 def StructTag(
-    # (datatype, offset) of each member of the struct, does not include bit members aliased to other members
     *members: Tuple[DataType, int],
-    bit_members: Dict[str, Tuple[int, int]],  # {member name, (offset, bit #) }
-    private_members: Set[str],  # private members that should not be in the final value
+    bit_members: Dict[str, Tuple[int, int]],
+    private_members: Set[str],
     struct_size: int,
 ) -> Type[StructType]:
+    """Create a custom struct tag type with bit-level members.
+
+    Args:
+        *members: Tuple of (DataType, offset) for each member.
+        bit_members: Dictionary of bit member names to (offset, bit number).
+        private_members: Set of member names to exclude from the final value.
+        struct_size: Total size of the struct in bytes.
+
+    Returns:
+        Type[StructType]: A custom struct type class.
+    """
     _members = [x[0] for x in members]
-    _offsets_ = {member: offset for (member, offset) in members}
+    _offsets = {member: offset for (member, offset) in members}
     _struct = Struct(*_members)
 
     class StructTag(_struct, metaclass=_StructTagReprMeta):
         bits = bit_members
         private = private_members
         size = struct_size
-        _offsets = _offsets_
+        _offsets = _offsets
 
         @classmethod
-        def _decode(cls, stream: BytesIO):
+        def _decode(cls, stream: BytesIO) -> Dict[str, Any]:
             stream = BytesIO(stream.read(cls.size))
             raw = stream.getvalue()
             values = {}
-
             for member in cls.members:
                 offset = cls._offsets[member]
                 if stream.tell() < offset:
                     stream.read(offset - stream.tell())
                 values[member.name] = member.decode(stream)
-
             for bit_member, (offset, bit) in cls.bits.items():
-                bit_value = bool(raw[offset] & (1 << bit))
-                values[bit_member] = bit_value
-
+                values[bit_member] = bool(raw[offset] & (1 << bit))
             return {k: v for k, v in values.items() if k not in cls.private}
 
         @classmethod
-        def _encode(cls, values: Dict[str, Any]):
-            # make a copy so that private host members aren't added to the original
-            values = {k: v for k, v in values.items()}
-
+        def _encode(cls, values: Dict[str, Any]) -> bytes:
+            values = values.copy()
             value = bytearray(cls.size)
             for member in cls.members:
                 if member.name in cls.private:
                     continue
                 offset = cls._offsets[member]
                 encoded = member.encode(values[member.name])
-                value[offset : offset + len(encoded)] = encoded
-
+                value[offset:offset + len(encoded)] = encoded
             for bit_member, (offset, bit) in cls.bits.items():
-                val = values[bit_member]
-
-                if val:
+                if values[bit_member]:
                     value[offset] |= 1 << bit
                 else:
                     value[offset] &= ~(1 << bit)
-
-            return value
+            return bytes(value)
 
     return StructTag

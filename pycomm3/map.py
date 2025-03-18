@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,101 +27,79 @@
 # SOFTWARE.
 #
 
-__all__ = [
-    "EnumMap",
-]
+"""Enum-like mapping utility for Pycomm3."""
+
+from typing import Any, Dict, List
+
+__all__ = ["EnumMap"]
 
 
-def _default_value_key(value):
+def _default_value_key(value: Any) -> Any:
+    """Default key function for value mapping."""
     return value
 
 
 class MapMeta(type):
-    def __new__(cls, name, bases, classdict):
-        enumcls = super().__new__(cls, name, bases, classdict)
+    """Metaclass for creating enum-like mappings."""
 
-        # get all non-private attributes
+    def __new__(cls, name: str, bases: tuple, classdict: Dict[str, Any]) -> type:
+        enumcls = super().__new__(cls, name, bases, classdict)
         members = {
             key: value
             for key, value in classdict.items()
-            if not key.startswith("_")
-            and not isinstance(value, (classmethod, staticmethod))
+            if not key.startswith("_") and not isinstance(value, (classmethod, staticmethod))
         }
-        # also add uppercase keys for each member (if they're not already lowercase)
         lower_members = {
             key.lower(): value
             for key, value in members.items()
             if key.lower() not in members
         }
-
-        if enumcls.__dict__.get("_bidirectional_", True):
-            # invert members to a value->key dict
-            _value_key = enumcls.__dict__.get("_value_key_", _default_value_key)
-            value_map = {
-                _value_key(value): key.lower() for key, value in members.items()
-            }
-        else:
-            value_map = {}
-
-        # merge 3 previous dicts to get member lookup dict
-        enumcls._members_ = {**members, **lower_members, **value_map}
-        enumcls._attributes = list(members)
-
-        # lookup by value only return CAPS keys if attribute set
-        _only_caps = enumcls.__dict__.get("_return_caps_only_")
-        enumcls._return_caps_only_ = _only_caps
-
+        value_map = (
+            {enumcls._value_key_(value): key.lower() for key, value in members.items()}
+            if enumcls.__dict__.get("_bidirectional_", True)
+            else {}
+        )
+        enumcls._members_ = {**members, **lower_members, **value_map}  # type: ignore[attr-defined]
+        enumcls._attributes = list(members)  # type: ignore[attr-defined]
+        enumcls._return_caps_only_ = enumcls.__dict__.get("_return_caps_only_")  # type: ignore[attr-defined]
         return enumcls
 
-    def __getitem__(cls, item):
-        val = cls._members_.__getitem__(_key(item))
-        if cls._return_caps_only_ and isinstance(val, str):
-            val = val.upper()
-        return val
+    def __getitem__(cls, item: Any) -> Any:
+        val = cls._members_[_key(item)]
+        return val.upper() if cls._return_caps_only_ and isinstance(val, str) else val
 
-    def get(cls, item, default=None):
-
+    def get(cls, item: Any, default: Any = None) -> Any:
         val = cls._members_.get(_key(item), default)
+        return val.upper() if cls._return_caps_only_ and isinstance(val, str) else val
 
-        if cls._return_caps_only_ and isinstance(val, str):
-            val = val.upper()
-        return val
-
-    def __contains__(cls, item):
-        return cls._members_.__contains__(
-            item.lower() if isinstance(item, str) else item
-        )
+    def __contains__(cls, item: Any) -> bool:
+        return _key(item) in cls._members_
 
     @property
-    def attributes(cls):
+    def attributes(cls) -> List[str]:
         return cls._attributes
 
 
-def _key(item):
+def _key(item: Any) -> Any:
+    """Convert item to a lookup key."""
     return item.lower() if isinstance(item, str) else item
 
 
 class EnumMap(metaclass=MapMeta):
+    """Enum-like class with dict-like lookups.
+
+    Provides case-insensitive and bidirectional access to attributes.
+
+    Example:
+        >>> class TestEnum(EnumMap):
+        ...     x = 100
+        >>> TestEnum.x
+        100
+        >>> TestEnum['X']
+        100
+        >>> TestEnum[100]
+        'x'
+
+    Note:
+        Intended for internal use with simple attribute-based subclasses.
     """
-    A simple enum-like class that allows dict-like __getitem__() and get() lookups.
-    __getitem__() and get() are case-insensitive and bidirectional
-
-    example:
-
-    class TestEnum(Pycomm3EnumMap):
-        x = 100
-
-    >>> TestEnum.x
-    100
-    >>> TestEnum['X']
-    100
-    >>> TestEnum[100]
-    x
-
-    Note: this class is really only to be used internally, it doesn't cover anything more than simple subclasses
-    (as in attributes only, don't add methods except for classmethods)
-    It's really just to provide dict-like item access with enum-like attributes.
-
-    """
-
-    ...

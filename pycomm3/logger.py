@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
-# Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
+# Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
+#
+# This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
+# Version: 2.0.0
+# Changes include modern Python updates, improved documentation, enhanced error handling, and optimized functionality.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,48 +27,57 @@
 # SOFTWARE.
 #
 
+"""Logging utilities for Pycomm3."""
+
 import logging
 import sys
+from typing import Optional
 
 __all__ = ["configure_default_logger", "LOG_VERBOSE"]
 
-LOG_VERBOSE = 5
+LOG_VERBOSE = 5  #: Custom logging level for verbose output (below DEBUG)
 
 
 _logger = logging.getLogger("pycomm3")
 _logger.addHandler(logging.NullHandler())
 
 
-def _verbose(self: logging.Logger, msg, *args, **kwargs):
+def _verbose(self: logging.Logger, msg: str, *args: Any, **kwargs: Any) -> None:
+    """Log a message at the VERBOSE level."""
     if self.isEnabledFor(LOG_VERBOSE):
-        self._log(LOG_VERBOSE, msg, *args, **kwargs)
+        self._log(LOG_VERBOSE, msg, args, **kwargs)
 
 
 logging.addLevelName(LOG_VERBOSE, "VERBOSE")
-logging.verbose = _verbose
-logging.Logger.verbose = _verbose
+logging.verbose = _verbose  # type: ignore[attr-defined]
+logging.Logger.verbose = _verbose  # type: ignore[attr-defined]
 
 
-def configure_default_logger(level: int = logging.INFO, filename: str = None, logger: str = None):
+def configure_default_logger(
+    level: int = logging.INFO,
+    filename: Optional[str] = None,
+    logger: Optional[str] = None
+) -> None:
+    """Configure basic logging for Pycomm3.
+
+    Args:
+        level: Logging level (e.g., logging.INFO, LOG_VERBOSE). Default is INFO.
+        filename: Optional file path to log to in addition to stdout.
+        logger: Optional name of an additional logger to configure. Use '' for root logger.
+
+    Example:
+        >>> from pycomm3.logger import configure_default_logger, LOG_VERBOSE
+        >>> configure_default_logger(level=LOG_VERBOSE, filename="pycomm3.log")
     """
-    Helper method to configure basic logging.  `level` will set the logging level.
-    To enable the verbose logging (where the contents of every packet sent/received is logged)
-    import the `LOG_VERBOSE` level from the `pycomm3.logger` module. The default level is `logging.INFO`.
-
-    To log to a file in addition to the terminal, set `filename` to the desired log file.
-
-    By default this method only configures the 'pycomm3' logger, to also configure your own logger,
-    set the `logger` argument to the name of the logger you wish to also configure.  For the root logger
-    use an empty string (``''``).
-    """
-    loggers = [logging.getLogger('pycomm3'), ]
-    if logger == '':
+    loggers = [logging.getLogger("pycomm3")]
+    if logger == "":
         loggers.append(logging.getLogger())
     elif logger:
         loggers.append(logging.getLogger(logger))
 
     formatter = logging.Formatter(
-        fmt="{asctime} [{levelname}] {name}.{funcName}(): {message}", style="{"
+        fmt="{asctime} [{levelname}] {name}.{funcName}(): {message}",
+        style="{"
     )
     handler = logging.StreamHandler(stream=sys.stdout)
     handler.setFormatter(formatter)
@@ -72,9 +86,9 @@ def configure_default_logger(level: int = logging.INFO, filename: str = None, lo
         file_handler = logging.FileHandler(filename, encoding="utf-8")
         file_handler.setFormatter(formatter)
 
-    for _log in loggers:
-        _log.setLevel(level)
-        _log.addHandler(handler)
-
+    for log in loggers:
+        log.setLevel(level)
+        log.handlers = []  # Clear existing handlers to avoid duplicates
+        log.addHandler(handler)
         if filename:
-            _log.addHandler(file_handler)
+            log.addHandler(file_handler)
