@@ -2,7 +2,7 @@
 #
 # Original Copyright (c) 2021 Ian Ottoway <ian@ottoway.dev>
 # Original Copyright (c) 2014 Agostino Ruscito <ruscito@gmail.com>
-# Modifications Copyright (c) 2025 Sergio Gallegos <sergio.gallegos@example.com>
+# Modifications Copyright (c) 2025 Sergio Gallegos
 #
 # This file is part of a fork of the original Pycomm3 project, enhanced in 2025 by Sergio Gallegos.
 # Version: 2.0.0

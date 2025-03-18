@@ -31,7 +31,7 @@
 
 import logging
 import sys
-from typing import Optional
+from typing import Optional, Any
 
 __all__ = ["configure_default_logger", "LOG_VERBOSE"]
 
@@ -43,7 +43,14 @@ _logger.addHandler(logging.NullHandler())
 
 
 def _verbose(self: logging.Logger, msg: str, *args: Any, **kwargs: Any) -> None:
-    """Log a message at the VERBOSE level."""
+    """Log a message at the VERBOSE level.
+
+    Args:
+        self: The logger instance.
+        msg: The message to log.
+        *args: Positional arguments for message formatting.
+        **kwargs: Keyword arguments for logging (e.g., exc_info).
+    """
     if self.isEnabledFor(LOG_VERBOSE):
         self._log(LOG_VERBOSE, msg, args, **kwargs)
 

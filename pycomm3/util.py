@@ -29,7 +29,7 @@
 
 """Utility functions for Pycomm3."""
 
-from typing import Tuple, Iterator
+from typing import Tuple, Iterator, Optional
 
 __all__ = ["strip_array", "get_array_index", "cycle"]
 

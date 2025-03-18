@@ -81,22 +81,23 @@ def FixedSizeString(size: int, len_type: Union[DataType, Type[DataType]] = UDINT
     """
 
     class FixedSizeString(StringDataType):
-        size = size
-        len_type = len_type
+        # Properly bind the outer scope variables as class attributes
+        _size = size
+        _len_type = len_type
 
         @classmethod
         def _encode(cls, value: str, *args: Any, **kwargs: Any) -> bytes:
             encoded = value.encode(cls.encoding)
-            if len(encoded) > cls.size:
-                raise ValueError(f"String length {len(encoded)} exceeds fixed size {cls.size}")
-            return cls.len_type.encode(len(value)) + encoded + b"\x00" * (cls.size - len(encoded))
+            if len(encoded) > cls._size:
+                raise ValueError(f"String length {len(encoded)} exceeds fixed size {cls._size}")
+            return cls._len_type.encode(len(value)) + encoded + b"\x00" * (cls._size - len(encoded))
 
         @classmethod
         def _decode(cls, stream: BytesIO) -> str:
-            _len = cls.len_type.decode(stream)
-            if _len > cls.size:
-                raise ValueError(f"Decoded length {_len} exceeds fixed size {cls.size}")
-            _data = cls._stream_read(stream, cls.size)[:_len]
+            _len = cls._len_type.decode(stream)
+            if _len > cls._size:
+                raise ValueError(f"Decoded length {_len} exceeds fixed size {cls._size}")
+            _data = cls._stream_read(stream, cls._size)[:_len]
             return _data.decode(cls.encoding)
 
     return FixedSizeString
@@ -214,14 +215,15 @@ def StructTag(
         Type[StructType]: A custom struct type class.
     """
     _members = [x[0] for x in members]
-    _offsets = {member: offset for (member, offset) in members}
+    _offsets_ = {member: offset for (member, offset) in members}
     _struct = Struct(*_members)
 
     class StructTag(_struct, metaclass=_StructTagReprMeta):
+        # Properly bind the outer scope variables as class attributes
         bits = bit_members
         private = private_members
         size = struct_size
-        _offsets = _offsets
+        offsets = _offsets_  # Renamed to avoid shadowing confusion
 
         @classmethod
         def _decode(cls, stream: BytesIO) -> Dict[str, Any]:
@@ -229,7 +231,7 @@ def StructTag(
             raw = stream.getvalue()
             values = {}
             for member in cls.members:
-                offset = cls._offsets[member]
+                offset = cls.offsets[member]  # Use the renamed attribute
                 if stream.tell() < offset:
                     stream.read(offset - stream.tell())
                 values[member.name] = member.decode(stream)
@@ -244,7 +246,7 @@ def StructTag(
             for member in cls.members:
                 if member.name in cls.private:
                     continue
-                offset = cls._offsets[member]
+                offset = cls.offsets[member]  # Use the renamed attribute
                 encoded = member.encode(values[member.name])
                 value[offset:offset + len(encoded)] = encoded
             for bit_member, (offset, bit) in cls.bits.items():
