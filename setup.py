@@ -1,8 +1,8 @@
 from setuptools import setup
 import os
 
-__version__ = "0.0.0"
-with open("pycomm3/_version.py") as f:
+__version__ = "0.1.0"  # Starting version for your fork
+with open("cipy/_version.py") as f:
     exec(f.read())
 
 
@@ -11,20 +11,20 @@ def read(file_name):
 
 
 setup(
-    name="pycomm3",
+    name="cipy",
     version=__version__,
-    author="Ian Ottoway",
-    author_email="ian@ottoway.dev",
-    url="https://github.com/ottowayi/pycomm3",
-    description="A Python Ethernet/IP library for communicating with Allen-Bradley PLCs.",
+    author="[Your Name]",
+    author_email="[your-email@example.com]",
+    url="https://github.com/[your-username]/cipy",
+    description="A Python library for CIP and EtherNet/IP communication with industrial devices.",
     long_description=read("README.rst"),
     license="MIT",
-    packages=["pycomm3", "pycomm3.packets", "pycomm3.cip"],
-    package_data={"pycomm3": ["py.typed"]},
+    packages=["cipy", "cipy.packets", "cipy.cip"],
+    package_data={"cipy": ["py.typed"]},
     python_requires=">=3.6.1",
     include_package_data=True,
     extras_require={
-        'tests': ['pytest']
+        "tests": ["pytest"]
     },
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -39,6 +39,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",  # Added for modern support
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
         "Topic :: Scientific/Engineering :: Human Machine Interfaces",
